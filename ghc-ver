@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Commands (BSD, not GNU)
+BASENAME="/usr/bin/basename"
+ECHO="/bin/echo"
+FIND="/usr/bin/find"
+
+# Directory of GHC versions (default is Haskell Platform)
+VERSIONS="/Library/Frameworks/GHC.framework/Versions"
+
+# Print usage for no arguments
+if [ -z "$1" ]
+then
+  PROG=`$BASENAME $0`
+  $ECHO "Usage: $PROG <version>"
+  $ECHO "       $PROG list"
+  exit 1
+fi
+
+# Print versions available for argument "list"
+if [ "$1" = "list" ]
+then
+  for DIR in `$FIND $VERSIONS -type d -depth 1`
+  do
+    $BASENAME $DIR
+  done
+  exit 0
+fi
+
+VERSION="$VERSIONS/$1"
+
+# Check and change version
+if [ -d "$VERSION" ]
+then
+  rm $VERSIONS/Current
+  ln -sf $VERSION $VERSIONS/Current
+else
+  $ECHO "Error! Can't find directory \`$VERSION'"
+fi
+
+# Print current GHC version
+$ECHO -n "Current version: "
+ghc --numeric-version
